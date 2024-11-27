@@ -1,0 +1,32 @@
+
+
+[tool.poetry]
+name = "fastapi-To-Do-List"
+version = "0.1.0"
+description = ""
+authors = ["Victor Jimenez <vojimene@ncsu.edu>"]
+readme = "README.md"
+packages = [
+    { include = "toDoApp" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+tortoise = "^0.1.1"
+pydantic = "^2.8.2"
+pytest = "^8.3.2"
+fastapi = "^0.112.0"
+httpx = "^0.27.0"
+asgi-lifespan = "^2.1.0"
+logging = "^0.4.9.6"
+tortoise-orm = "^0.21.5"
+uvicorn = "^0.30.5"
+
+[tool.poetry.scripts]
+run-server = "main:run_server"
+test = "run_test:main"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
