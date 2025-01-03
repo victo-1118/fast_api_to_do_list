@@ -70,3 +70,8 @@ if __name__ == "__main__":
 async def root():
     return {"message": "to do app welcome :)"}
 
+#important stuff to know for poetry usage.
+# first: poetry install
+#How to run tests: poetry run test
+# How to run server: poetry run run-server
+# to add libraries/dependencies you would have to do poetry add [name of libary]
