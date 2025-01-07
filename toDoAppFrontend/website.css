@@ -52,6 +52,7 @@ p {
     height: 50px;    
 }
 .lists {
+    cursor: pointer;
     height: 50px;
     width: 100%;
 }
@@ -167,5 +168,7 @@ bottom: 8px;
 background: currentColor;
 }
 
-
+#items-page {
+    display: none;
+}
 
