@@ -29,7 +29,7 @@ p {
     z-index: 1000;
 }
 .container{
-    transition: margin-left 0.3s ease; /* Smooth transition */
+
     margin-top: 45px;
     margin-left: 0px;
     display: flex;
@@ -54,7 +54,7 @@ p {
 .lists {
     cursor: pointer;
     height: 50px;
-    width: 100%;
+    width: 100vw;
 }
 .container-sidebar{
     position: fixed;
@@ -74,7 +74,7 @@ p {
     width: 140px;
     height: 100vh; /* Sidebar height adjusted */
 
-    transition: left 0.3s ease; /* Smooth transition */
+    transition: left 0.7s ease; /* Smooth transition */
     z-index: 100;
     left: -250px;
 }
@@ -168,7 +168,15 @@ bottom: 8px;
 background: currentColor;
 }
 
-#items-page {
-    display: none;
+#lists-page, #items-page {
+    position: fixed;
+    left: 0;
+    transition: margin-left 0.5s ease;
 }
+#items-page {
+    visibility: hidden;
+}
+
+
+
 
