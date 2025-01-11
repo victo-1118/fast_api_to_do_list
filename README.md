@@ -20,3 +20,7 @@ so that way I can use that extra space. In fact I could probably do something si
 I should probably add some more comments to my backend and frontend
 
 thinking of just adding description currently just basic stuff and then I can add more design or features
+1/11/2025 
+just added the items descriptions after clicking them. think im going to focus on mobile first before adding computer query media stuff etc.
+I think im almost ready to make the fetch api calls but first i got to fix the sidebar (back to list button dont make sense if your already at the list page)
+
