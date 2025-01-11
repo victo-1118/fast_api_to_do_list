@@ -49,14 +49,17 @@ p {
 .container .lists .list, .container .items .item{
     transition: flex-grow 0.7s ease;
 
-    display: flex;
-
     border: rgb(0, 0, 0) 1px solid;
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.2);
     margin: 3px; 
     align-items: center;
 }
-
+.item-descriptions-container{
+    display: flex;
+    flex-direction: row;
+    padding: 1.5rem;
+    justify-content: space-between;
+}
 
 .title-list {
     text-align: center;

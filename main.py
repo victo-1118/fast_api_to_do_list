@@ -93,6 +93,16 @@ app = FastAPI(lifespan=lifespan)
 # Include the router for task-related endpoints
 app.include_router(tasks.router)
 def run_server():
+    """
+    Run the FastAPI application using uvicorn.
+
+    This function is intended to be used as an entry point for the application
+    when running directly from the command line. When the application is run
+    using poetry, the command should be "poetry run run-server".
+
+    :param: None
+    :return: None
+    """
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 if __name__ == "__main__":
     run_server()

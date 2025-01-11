@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const listsPage = document.getElementById('lists-page');
     const itemsPage = document.getElementById("items-page")
     const listsContainer = document.querySelector(".lists")
+    let itemsContainer = null
     
     const backButton = document.getElementById('back-to-lists');
     const hamburger = document.getElementById("hamburger");
@@ -71,13 +72,37 @@ document.addEventListener("DOMContentLoaded", function() {
             <h2 class="title-items">${listName}</h2>
             
             <ul class="items">
-                <li class="item" data-id="1" data-name="Groceries">Groceries but not same</li>
-                <li class="item" data-id="2" data-name="Work Tasks">Work Tasks</li>
-                <li class="item" data-id="3" data-name="Personal Goals">Personal Goals</li>
+                <li class="item" data-id="1" data-name="Groceries" data-description="banana">Groceries but not same</li>
+                <li class="item" data-id="2" data-name="Work Tasks data-description="paperDue">Work Tasks</li>
+                <li class="item" data-id="3" data-name="Personal Goals" data-description="225 bench">Personal Goals</li>
             </ul>
         </div>`
         
         itemsPage.insertAdjacentHTML('afterbegin', itemHTML);
+        itemsContainer = document.querySelector(".items")
+
+        itemsContainer.addEventListener('click', function (event) {
+            console.log("Was the container clicked for items?");
+            const listItem = event.target.closest(".item");
+    
+            if (listItem) {
+                const existingDescriptions = listItem.nextElementSibling;
+                console.log(existingDescriptions)    
+                // Check if the next sibling is the description paragraph
+                if (existingDescriptions && existingDescriptions.classList.contains("item-descriptions-container")) {                    // Remove the existing description
+                    existingDescriptions.remove();
+                } else {
+                    // Add a new description paragraph
+                    const listDescription = listItem.dataset.description;
+                    const itemDescriptionHTML = `
+                    <div class="item-descriptions-container">
+                        <p id="item-description">${listDescription}</p>
+                        <p>&#9989;</p>
+                    </div>`;
+                    listItem.insertAdjacentHTML('afterend', itemDescriptionHTML);
+                }
+            }
+        });
         
     }
     
@@ -94,5 +119,6 @@ document.addEventListener("DOMContentLoaded", function() {
             displayItemsPage(listId, listName);
         }
     });
+    
 });
 
