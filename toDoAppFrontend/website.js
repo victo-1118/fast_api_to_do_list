@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const itemsPage = document.getElementById("items-page")
     const listsContainer = document.querySelector(".lists")
     let itemsContainer = null
-    
+    const createButton = document.querySelector(".sidebar-item:nth-child(1)");
     const backButton = document.getElementById('back-to-lists');
     const hamburger = document.getElementById("hamburger");
     const sidebar = document.getElementById("sidebar");
@@ -57,9 +57,12 @@ document.addEventListener("DOMContentLoaded", function() {
     function displayListsPage () {
         itemsPage.style.visibility = `hidden`
         listsPage.style.visibility = `visible`
+        backButton.style.visibility = `hidden`
+        createButton.querySelector("p").textContent = "Create List"
     }
     function displayItemsPage (listId, listName) {
-
+        createButton.querySelector("p").textContent = "Create Item"
+        backButton.style.visibility = `visible`
         console.log(`Loading items for List ID: ${listId}, List Name: ${listName}`);
         listsPage.style.visibility = `hidden`;
         itemsPage.style.visibility = `visible`;

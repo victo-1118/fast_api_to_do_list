@@ -196,6 +196,9 @@ background: currentColor;
 #items-page {
     visibility: hidden;
 }
+#back-to-lists{
+    visibility: hidden;
+}
 
 
 
