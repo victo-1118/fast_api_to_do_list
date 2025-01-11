@@ -14,6 +14,16 @@ logging.basicConfig(level=logging.DEBUG)
 TESTING = os.getenv("TESTING", False)
 # Function to generate Tortoise ORM config based on environment
 def get_tortoise_config(db_url: str):
+    """
+    Generates Tortoise ORM configuration based on environment.
+
+    Args:
+        db_url (str): The URL of the database to use.
+
+    Returns:
+        dict: The generated configuration.
+
+    """
     return generate_config(
         db_url=db_url,
         app_modules={"models": ["toDoApp.models"]},
@@ -22,8 +32,16 @@ def get_tortoise_config(db_url: str):
     )
 
 # Lifespan context manager for testing environment
+
 @asynccontextmanager
-async def lifespan_test(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan_test(app: FastAPI) -> AsyncGenerator[None, None]:    
+    """
+    Lifespan context manager to configure Tortoise ORM for testing environment.
+    When this context manager is used, Tortoise is configured to use an in-memory
+    database, and schemas are generated. This context manager is used instead of
+    the default lifespan context manager when the environment variable 'TESTING'
+    is set to 'True'.
+    """
     config = get_tortoise_config("sqlite://:memory:") #Works in memory instead of a file
     async with RegisterTortoise(
         app=app,
@@ -38,8 +56,21 @@ async def lifespan_test(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.debug("Tortoise ORM connections closed for testing.")
 
 # Lifespan context manager for production environment
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+
+    """
+    Lifespan context manager to configure Tortoise ORM for either testing or production
+    environment. If the environment variable 'TESTING' is set to 'True', Tortoise is
+    configured to use an in-memory database. Otherwise, it is configured to use a SQLite
+    database file at 'db.sqlite3'.
+    In this case the context manager is not used by us but used by FastAPI
+    When you create a context manager or an async context manager like above, what it does is that,
+      before entering the with block, it will execute the code before the yield,
+      and after exiting the with block, it will execute the code after the yield.
+    """
     if os.getenv("TESTING") == "True":
         async with lifespan_test(app) as _:
             yield

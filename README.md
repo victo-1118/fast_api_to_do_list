@@ -12,8 +12,11 @@ Ill have to think about the fact that ill have to make and recieve the calls to 
 should make dummy items
 1/10/2025
 Created the dummy items now all thats left is to make sure that the dummy items show their description
-and whether are done or not. Thinking maybe ill show the descriptions after clicking on the item.
+and whether are done or not. Thinking maybe ill show the descriptions after clicking on the item if I
+decide to add a option for more in detail descriptions.
 At least for mobile. maybe for on computer I show it to the side of the name of the task item to do
 so that way I can use that extra space. In fact I could probably do something similar with the list display as I can show how many items out of total items are complete. Same thing can be done for mobile next to item name to show if its complete or not instead of showing it once clicking on the item.
 
 I should probably add some more comments to my backend and frontend
+
+thinking of just adding description currently just basic stuff and then I can add more design or features

@@ -32,19 +32,24 @@ document.addEventListener("DOMContentLoaded", function() {
     
     
     function displaySidebar () {
-        if (sidebar.style.left === "-250px" || sidebar.style.left === ""){
+        
+        if (sidebar.style.left === "-130px" || sidebar.style.left === ""){
             sidebar.style.left = `0`;
 
                
             listsPage.style.marginLeft = `130px`         
             itemsPage.style.marginLeft = `130px`
+            listsPage.style.width = `calc(100% - 130px)`
+            itemsPage.style.width = `calc(100% - 130px)`
         }
         else {
             console.log(sidebar.style.left)
-            sidebar.style.left = `-250px`;
+            sidebar.style.left = `-130px`;
             
             listsPage.style.marginLeft = `0px`
             itemsPage.style.marginLeft = `0px`
+            listsPage.style.width = `100%`
+            itemsPage.style.width = `100%`
         }
         
     }
@@ -58,11 +63,10 @@ document.addEventListener("DOMContentLoaded", function() {
         listsPage.style.visibility = `hidden`;
         itemsPage.style.visibility = `visible`;
 
-        // Example: Update items page with the list's name or content
-    
+        // Used to clear the items page if there were previous lists shown
+        itemsPage.innerHTML = '';
        
         const itemHTML = `
-        <h3>${listId}</h3>
         <div class="container">
             <h2 class="title-items">${listName}</h2>
             
