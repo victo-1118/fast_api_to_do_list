@@ -2,9 +2,9 @@
 
 [tool.poetry]
 name = "fastapi-To-Do-List"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = ["Victor Jimenez <vojimene@ncsu.edu>"]
+authors = ["Victor Jimenez <voctaviojimenez@gmail.com>"]
 readme = "README.md"
 packages = [
     { include = "toDoApp" }
@@ -15,12 +15,13 @@ python = "^3.12"
 tortoise = "^0.1.1"
 pydantic = "^2.8.2"
 pytest = "^8.3.2"
-fastapi = "^0.112.0"
+fastapi = "^0.115.6"
 httpx = "^0.27.0"
 asgi-lifespan = "^2.1.0"
 logging = "^0.4.9.6"
 tortoise-orm = "^0.21.5"
 uvicorn = "^0.30.5"
+starlette = "0.41.3"
 
 [tool.poetry.scripts]
 run-server = "main:run_server"

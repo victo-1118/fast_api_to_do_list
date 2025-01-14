@@ -1,6 +1,7 @@
 import os
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from toDoApp.routers import tasks
 from tortoise import Tortoise, generate_config
 from tortoise.contrib.fastapi import RegisterTortoise
@@ -89,6 +90,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 # Initialize FastAPI app with the custom lifespan context manager
 app = FastAPI(lifespan=lifespan)
+
+# Configure CORS Middleware
+origins = [
+    "http://127.0.0.1:5500",  # Frontend URL (adjust as needed)
+    "http://localhost:3000",  # Alternative localhost URL
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Domains allowed to access your API
+    allow_credentials=True,  # Allow cookies or authentication headers
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all HTTP headers
+)
 
 # Include the router for task-related endpoints
 app.include_router(tasks.router)

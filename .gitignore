@@ -1,0 +1,11 @@
+# Cache files
+*.cache
+__pycache__/
+*.py[cod]
+# VSCode
+.vscode/
+# Log files
+*.log
+db.sqlite3
+db.sqlite3-shm
+db.sqlite3-wal
