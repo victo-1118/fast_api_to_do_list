@@ -32,3 +32,10 @@ Also added some Cors stuff and overall its not so bad as it does create a new li
 1/13/2025
 The issues was live server. what happend was that because live Server automatically looks for change in files in its directores to make sure those changes are shown in the website the page refreshed when the database was updated. Ive disabled liveserver from checking those database files.
 
+1/14/2025 
+Finished with the create item button. did have some issues but it wasnt major since it was just stupid/simple
+mistakes like a capital letter or forgetting to add some stuff to the json im sending. I did realize
+though that one of the features I added on click for item is pretty useless as my item model only
+has the text and whether is_done or not. I plan later to change that so that I get rid of that whitespace
+but right now im going to focus on finishing adding the crud functions.
+

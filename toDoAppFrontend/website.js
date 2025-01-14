@@ -24,8 +24,10 @@ function loadSideBar (){
 loadSideBar();
 const listsPage = document.getElementById('lists-page');
 const itemsPage = document.getElementById("items-page")
+itemsPage.style.visibility = `visible`;
 const listsContainer = document.querySelector(".lists")
 let itemsContainer = null
+let listName = null;
 const createButton = document.querySelector(".sidebar-item:nth-child(1)");
 const backButton = document.getElementById('back-to-lists');
 const hamburger = document.getElementById("hamburger");
@@ -73,12 +75,9 @@ function displayItemsPage (listId, listName) {
     const itemHTML = `
     <div class="container">
         <h2 class="title-items">${listName}</h2>
-        
         <ul class="items">
-            <li class="item" data-id="1" data-name="Groceries" data-description="banana">Groceries but not same</li>
-            <li class="item" data-id="2" data-name="Work Tasks data-description="paperDue">Work Tasks</li>
-            <li class="item" data-id="3" data-name="Personal Goals" data-description="225 bench">Personal Goals</li>
-        </ul>
+        
+        </ul>       
     </div>`
     
     itemsPage.insertAdjacentHTML('afterbegin', itemHTML);
@@ -96,11 +95,15 @@ function displayItemsPage (listId, listName) {
                 existingDescriptions.remove();
             } else {
                 // Add a new description paragraph
-                const listDescription = listItem.dataset.description;
+                const listItemDescription = listItem.dataset.is_done;
+                const trueOrFalseHTML = `<p>&#10060;</p>`
+                if (listItemDescription === "true") {
+                    trueOrFalseHTML = `<p>>&#9989;</p>`
+                }
                 const itemDescriptionHTML = `
                 <div class="item-descriptions-container">
-                    <p id="item-description">${listDescription}</p>
-                    <p>&#9989;</p>
+                    <p id="item-description">${trueOrFalseHTML}</p>
+
                 </div>`;
                 listItem.insertAdjacentHTML('afterend', itemDescriptionHTML);
             }
@@ -118,7 +121,7 @@ listsContainer.addEventListener('click', function (event) {
     console.log(listItem)
     if (listItem) {
         const listId = listItem.dataset.id; // Access data-id
-        const listName = listItem.dataset.name; // Access data-name
+        listName = listItem.dataset.name; // Access data-name
         displayItemsPage(listId, listName);
     }
 });
@@ -128,7 +131,6 @@ async function createList(listName) {
     try {
         
         console.log("before the fetch request");
-        debugger;
 
         const response = await fetch('http://127.0.0.1:8000/lists/', {
             method: 'POST', // Specify the HTTP method
@@ -140,16 +142,13 @@ async function createList(listName) {
         });
 
         console.log(response);
-        debugger;
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         console.log("response ok");
-        debugger;
         const data = await response.json();
         console.log("List created successfully:", data);
-        debugger;
 
 
         // Insert the new list into the DOM
@@ -159,12 +158,34 @@ async function createList(listName) {
             </div>
         `;
         console.log(listHtml);
-        debugger;
 
         listsContainer.insertAdjacentHTML('beforeend', listHtml);
         console.log("List inserted into DOM");
-        debugger;
 
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+async function createItem(itemText, listName) {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/items/${listName}/`, {
+            method: 'POST', // Specify the HTTP method
+            headers: {
+                'Accept': 'application/json', // Expect JSON in response
+                'Content-Type': 'application/json', // Sending JSON data
+            },
+            body: JSON.stringify({ text: itemText, is_done: false}), // Send the list name as JSON
+        });
+        console.log(response);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Item created successfully:", data);
+        const itemHtml = `
+        <li class = "item" data-id="${data.id}" data-is_Done= "${data.is_done}">${data.text}</li>
+        `;
+        itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
@@ -174,21 +195,39 @@ async function createList(listName) {
 createButton.addEventListener("click", function (event) {
     event.preventDefault(); // Prevent default behavior
     console.log("Create button clicked");
-    debugger;
-    const listName = prompt("Enter List Name:");
-    console.log(listName);
-    debugger;
+    const listsPageStyles = getComputedStyle(listsPage);
+    const listsPageVisibility = listsPageStyles.getPropertyValue("visibility");
+    if (listsPageVisibility === "visible") {
+        
+    
+        listName = prompt("Enter List Name:");
+        console.log(listName);
 
-    // Check if the user entered a name
-    if (!listName) {
-        console.error("List name is required.");
-        return;
+
+        // Check if the user entered a name
+        if (!listName) {
+            console.error("List name is required.");
+            return;
+        }
+
+        // Call the async function with the list name
+        console.log("Calling async function");
+        createList(listName);
     }
+    else {
+        console.log(listsPage.style.visibility);
+        const itemText = prompt("Enter Item Text:");
+        console.log(itemText);
 
-    // Call the async function with the list name
-    console.log("Calling async function");
-    debugger;
-    createList(listName);
+        // Check if the user entered a name
+        if (!itemText) {
+            console.error("Item name is required.");
+            return;
+        }
+
+        // Call the async function with the list name    
+        createItem(itemText, listName);
+    }
 });
 
 

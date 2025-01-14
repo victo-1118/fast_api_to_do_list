@@ -185,6 +185,9 @@ height: 2px;
 bottom: 8px;
 background: currentColor;
 }
+#lists-page{
+    visibility: visible;
+}
 
 #lists-page, #items-page {
     position: fixed;
