@@ -186,22 +186,20 @@ bottom: 8px;
 background: currentColor;
 }
 #lists-page{
-    visibility: visible;
+    display: block;
 }
 
 #lists-page, #items-page {
-    position: fixed;
+
     width: 100%; /* Adjust for sidebar width%*/
-    left: 0;
+
     transition: margin-left 0.7s, width 0.7s;
 
 }
 #items-page {
-    visibility: hidden;
+    display: none;    
 }
-#back-to-lists{
-    visibility: hidden;
-}
+
 
 
 

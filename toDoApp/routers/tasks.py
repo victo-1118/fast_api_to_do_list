@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from toDoApp import crud, models, schemas
-from typing import Optional
+from typing import Optional, List
 router = APIRouter()
 @router.post("/lists/", response_model=schemas.List_Pydantic)
 async def create_list(list_in: schemas.ListIn_Pydantic):
@@ -11,6 +11,10 @@ async def create_list(list_in: schemas.ListIn_Pydantic):
 @router.get("/lists/{name}", response_model=schemas.List_Pydantic)
 async def read_list(name: str):
     return await crud.read_list(name)
+@router.get("/lists/", response_model=List[schemas.List_Pydantic])
+async def read_all_lists():
+    return await crud.read_all_lists()
+
 @router.put("/lists/{name}", response_model=schemas.List_Pydantic)
 async def update_list(name: str, new_name: str):
     return await crud.update_list(name, new_name)

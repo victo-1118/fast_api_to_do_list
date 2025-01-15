@@ -46,6 +46,10 @@ async def read_list(name: str) -> List_Pydantic:
     if not list_obj:
         raise HTTPException(status_code=404, detail=f"{name} to be read not found")
     return await List_Pydantic.from_tortoise_orm(list_obj)
+
+async def read_all_lists() :
+    return await List_Pydantic.from_queryset(ListC.all())
+
 async def read_item(name: str, id: int) -> Item_Pydantic:
     try:
         list_obj = await ListC.filter(name=name).prefetch_related("items").first()

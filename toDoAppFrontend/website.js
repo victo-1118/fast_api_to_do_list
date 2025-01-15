@@ -22,9 +22,34 @@ function loadSideBar (){
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 }
 loadSideBar();
+async function loadLists() {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/lists/");
+        if (!response.ok) {
+            throw new Error(`Http error, Status${response.status}`)
+        }
+        const allListsData = await response.json()
+        console.log(allListsData)
+        debugger
+        allListsData.forEach(list => {
+            console.log(list)
+            const listHtml = `
+            <div class="list" data-id="${list.id}" data-name="${list.name}">
+                <p class="list-name">${list.name}</p>
+            </div>
+            `
+            listsContainer.insertAdjacentHTML('beforeend', listHtml);
+
+        })
+    }
+    catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+loadLists();
 const listsPage = document.getElementById('lists-page');
 const itemsPage = document.getElementById("items-page")
-itemsPage.style.visibility = `visible`;
+
 const listsContainer = document.querySelector(".lists")
 let itemsContainer = null
 let listName = null;
@@ -57,17 +82,17 @@ function displaySidebar () {
     
 }
 function displayListsPage () {
-    itemsPage.style.visibility = `hidden`
-    listsPage.style.visibility = `visible`
-    backButton.style.visibility = `hidden`
+    itemsPage.style.display = `none`
+    listsPage.style.display = `block`
+    backButton.style.display = `none`
     createButton.querySelector("p").textContent = "Create List"
 }
 function displayItemsPage (listId, listName) {
     createButton.querySelector("p").textContent = "Create Item"
-    backButton.style.visibility = `visible`
+    backButton.style.display = `block`
     console.log(`Loading items for List ID: ${listId}, List Name: ${listName}`);
-    listsPage.style.visibility = `hidden`;
-    itemsPage.style.visibility = `visible`;
+    listsPage.style.display = `none`;
+    itemsPage.style.display = `block`;
 
     // Used to clear the items page if there were previous lists shown
     itemsPage.innerHTML = '';
@@ -196,8 +221,8 @@ createButton.addEventListener("click", function (event) {
     event.preventDefault(); // Prevent default behavior
     console.log("Create button clicked");
     const listsPageStyles = getComputedStyle(listsPage);
-    const listsPageVisibility = listsPageStyles.getPropertyValue("visibility");
-    if (listsPageVisibility === "visible") {
+    const listsPageDisplayability = listsPageStyles.getPropertyValue("display");
+    if (listsPageDisplayability === "block") {
         
     
         listName = prompt("Enter List Name:");
@@ -215,7 +240,7 @@ createButton.addEventListener("click", function (event) {
         createList(listName);
     }
     else {
-        console.log(listsPage.style.visibility);
+        console.log(listsPage.style.display);
         const itemText = prompt("Enter Item Text:");
         console.log(itemText);
 
