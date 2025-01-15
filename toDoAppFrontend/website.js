@@ -108,6 +108,7 @@ function displayItemsPage (listId, listName) {
     itemsPage.insertAdjacentHTML('afterbegin', itemHTML);
     itemsContainer = document.querySelector(".items")
 
+    readItems(listName);
     itemsContainer.addEventListener('click', function (event) {
         console.log("Was the container clicked for items?");
         const listItem = event.target.closest(".item");
@@ -188,6 +189,29 @@ async function createList(listName) {
         console.log("List inserted into DOM");
 
     } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+async function readItems(listName) {
+    try{
+        const response = await fetch(`http://127.0.0.1:8000/items/${listName}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data){
+            console.log("No data found")
+            return;
+        }
+
+        data.forEach(item => {
+            const itemHTML = `
+                <li class = "item" data-id="${item.id}" data-is_Done= "${item.is_done}">${item.text}</li>
+            `;
+            itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+        })
+    }
+    catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
 }

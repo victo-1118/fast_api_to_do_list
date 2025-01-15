@@ -57,3 +57,10 @@ Just realized im going to need another crud function. If i plan to make all the 
 visible Im going to need to read all this list. This made me also think that read_list was basically 
 useless at this point but im going to need to read the specific items from that list. read all list will
 just load in those lists first.
+
+Nevermind read_list doesnt show the items and although I could probably make it so that it does theres
+no point since I have read_items. Ill keep it around though just in case I might need to use it later
+for some reason
+
+1/15/2025
+Just finished the read items fetch request and works as expected. Found out that my read_item function doesnt have much use currently. I plan to now add the update function requests.
