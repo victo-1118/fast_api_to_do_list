@@ -30,15 +30,22 @@ async function loadLists() {
         }
         const allListsData = await response.json()
         console.log(allListsData)
-        debugger
         allListsData.forEach(list => {
             console.log(list)
             const listHtml = `
-            <div class="list" data-id="${list.id}" data-name="${list.name}">
+            <li class="list" data-id="${list.id}" data-name="${list.name}">
                 <p class="list-name">${list.name}</p>
-            </div>
+                <p class="left-caret">&#8249;</p>
+                
+                <div class="button-wrapper" style="display: none;">
+                    <p class="right-caret">&#8250;</p>
+                    <p class="edit-button">&#9998;</p>
+                    <p class="delete-button">&#128465;</p>
+                </div>
+            </li>
             `
             listsContainer.insertAdjacentHTML('beforeend', listHtml);
+
 
         })
     }
@@ -81,6 +88,10 @@ function displaySidebar () {
     }
     
 }
+
+    
+
+
 function displayListsPage () {
     itemsPage.style.display = `none`
     listsPage.style.display = `block`
@@ -109,10 +120,55 @@ function displayItemsPage (listId, listName) {
     itemsContainer = document.querySelector(".items")
 
     readItems(listName);
+    itemsContainer.addEventListener('touchstart', function(event) {
+        console.log(event);
+        touchStarted = true;
+        setTimeout(function() {
+            if (touchStarted) {
+                event.stopPropagation();
+                console.log("Finger is down");
+                const touch = event.targetTouches[0];
+                const item = touch ? document.elementFromPoint(touch.clientX, touch.clientY) : event.target;
+                if (item){
+                    console.log(item);
+                    item.style.backGroundColor = "lightblue";
+                }
+            }
+        },500);
+    })
+    itemsContainer.addEventListener('touchend', function(event) {
+        touchStarted = false;
+    })
+    itemsContainer.addEventListener('touchcancel', function(event) {
+        touchStarted = false;
+    })
+    
     itemsContainer.addEventListener('click', function (event) {
+        console.log(event);
         console.log("Was the container clicked for items?");
-        const listItem = event.target.closest(".item");
+        const leftCaret = event.target.closest(".left-caret");
+        if (leftCaret) {
+            const parentItem = leftCaret.closest(".item"); // Find the parent .list container
+            const buttonWrapper = parentItem.querySelector(".button-wrapper");
 
+            // Show the buttons and replace the caret
+            buttonWrapper.style.display = "flex"; // Show edit and delete buttons
+            leftCaret.style.display = "none"; // Hide the left caret
+            return;
+        }
+
+        // Handle the right caret click
+        const rightCaret = event.target.closest(".right-caret");
+        if (rightCaret) {
+            const parentItem = rightCaret.closest(".item"); // Find the parent .list container
+            const buttonWrapper = parentItem.querySelector(".button-wrapper");
+
+            // Hide the buttons and replace the caret
+            buttonWrapper.style.display = "none"; // Hide edit and delete buttons
+            parentItem.querySelector(".left-caret").style.display = "block"; // Show the left caret
+            return;
+        }
+        const listItem = event.target.closest(".item");
         if (listItem) {
             const existingDescriptions = listItem.nextElementSibling;
             console.log(existingDescriptions)    
@@ -141,14 +197,41 @@ function displayItemsPage (listId, listName) {
 hamburger.addEventListener("click", displaySidebar)    
 
 backButton.addEventListener("click", displayListsPage)
+
 listsContainer.addEventListener('click', function (event) {
-    console.log("was the container clicked")
-    const listItem = event.target.closest(".list")
-    console.log(listItem)
+    console.log("Was the container clicked");
+
+    // Handle the left caret click
+    const leftCaret = event.target.closest(".left-caret");
+    if (leftCaret) {
+        const parentList = leftCaret.closest(".list"); // Find the parent .list container
+        const buttonWrapper = parentList.querySelector(".button-wrapper");
+
+        // Show the buttons and replace the caret
+        buttonWrapper.style.display = "flex"; // Show edit and delete buttons
+        leftCaret.style.display = "none"; // Hide the left caret
+        return;
+    }
+
+    // Handle the right caret click
+    const rightCaret = event.target.closest(".right-caret");
+    if (rightCaret) {
+        const parentList = rightCaret.closest(".list"); // Find the parent .list container
+        const buttonWrapper = parentList.querySelector(".button-wrapper");
+
+        // Hide the buttons and replace the caret
+        buttonWrapper.style.display = "none"; // Hide edit and delete buttons
+        parentList.querySelector(".left-caret").style.display = "block"; // Show the left caret
+        return;
+    }
+
+    // Handle clicking on a list
+    const listItem = event.target.closest(".list");
     if (listItem) {
         const listId = listItem.dataset.id; // Access data-id
-        listName = listItem.dataset.name; // Access data-name
-        displayItemsPage(listId, listName);
+        const listName = listItem.dataset.name; // Access data-name
+        console.log(`Clicked list: ${listName} (ID: ${listId})`);
+        displayItemsPage(listId, listName); // Your logic for navigating to the items page
     }
 });
 
@@ -179,9 +262,9 @@ async function createList(listName) {
 
         // Insert the new list into the DOM
         const listHtml = `
-            <div class="list" data-id="${data.id}" data-name="${data.name}">
+            <li class="list" data-id="${data.id}" data-name="${data.name}">
                 <p class="list-name">${data.name}</p>
-            </div>
+            </li>
         `;
         console.log(listHtml);
 
@@ -206,7 +289,17 @@ async function readItems(listName) {
 
         data.forEach(item => {
             const itemHTML = `
-                <li class = "item" data-id="${item.id}" data-is_Done= "${item.is_done}">${item.text}</li>
+                <li class = "item" data-id="${item.id}" data-is_done= "${item.is_done}">
+                    <p>${item.text}</p>
+                    <p class="left-caret">&#8249;</p>
+                
+                    <div class="button-wrapper" style="display: none;">
+                        <p class="right-caret">&#8250;</p>
+                        <p class="edit-button">&#9998;</p>
+                        <p class="delete-button">&#128465;</p>
+                    </div>
+                    
+                </li>
             `;
             itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
         })
@@ -232,7 +325,7 @@ async function createItem(itemText, listName) {
         const data = await response.json();
         console.log("Item created successfully:", data);
         const itemHtml = `
-        <li class = "item" data-id="${data.id}" data-is_Done= "${data.is_done}">${data.text}</li>
+        <li class = "item" data-id="${data.id}" data-is_done= "${data.is_done}">${data.text}</li>
         `;
         itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     } catch (error) {

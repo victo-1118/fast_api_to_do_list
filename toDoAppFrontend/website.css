@@ -11,15 +11,13 @@
 :root {
     --menu-color:rgb(255, 238, 206);
 }
+html {
+    scrollbar-width: none;
+}
 p {
     font-size: 1.1rem;
 }
-.page {
-    display: none;
-}
-.active {
-    display: block;
-}
+
 .hamburger-menu {
     font-size: 30px;
     cursor: pointer;
@@ -29,7 +27,6 @@ p {
     z-index: 1000;
 }
 .container{
-    width: 100%;
     box-sizing: border-box;
     margin-top: 45px;
     margin-left: 0px;
@@ -44,15 +41,21 @@ p {
    or lists
 */
 .container .lists, .container .items{
-    flex-grow: 1;
+    width: 100%;
+    
 }
+
 .container .lists .list, .container .items .item{
+    display: flex;
+    align-items: center;
     transition: flex-grow 0.7s ease;
 
     border: rgb(0, 0, 0) 1px solid;
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.2);
     margin: 3px; 
     align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
 }
 .item-descriptions-container{
     display: flex;
@@ -199,7 +202,36 @@ background: currentColor;
 #items-page {
     display: none;    
 }
+.hint{
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+.hint .text {
+    visibility: hidden;
+}
+.button-wrapper{
+    width: 4rem;
+    justify-content: space-between
+}
 
+
+.edit-button, .delete-button, .right-caret {
+    font-size: 1.5rem;
+    flex-grow: 1;
+    align-self: center;
+    cursor: pointer;
+}
+.right-caret{
+    font-size: 2rem;
+}
+.left-caret{
+    align-self: center;
+    cursor: pointer;
+    font-size: 2rem;
+    margin-right: 0.5rem;
+    
+}
 
 
 

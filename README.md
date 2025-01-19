@@ -63,4 +63,30 @@ no point since I have read_items. Ill keep it around though just in case I might
 for some reason
 
 1/15/2025
-Just finished the read items fetch request and works as expected. Found out that my read_item function doesnt have much use currently. I plan to now add the update function requests.
+Just finished the read items fetch request and works as expected. Found out that my read_item function
+ doesnt have much use currently. I plan to now add the update function requests.
+
+ Was planning to make it so that you have to hold click or touch to see options on whether to update
+  or delete. Changed my mind though since that would be kind of weird in computer and also it would
+  mess up with the box sizes for the li tags. Now im going to make sure that instead there is a drag
+  left arrow to see options to update and delete for mobile. On computer/ non touch ill makes it so that if you hover over the item then you will see the option to delete or update. I think I will use the hold click or touch to drag elements
+
+1/18/2025
+I had an issue where under 391 pixels the lists container would not be seen completely. This was 
+a problem since I was making a mobile first desing (starting from the lowest width given by 
+chromes device it provided). To fix this I had to look at what was causing the width to overflow
+Turns it that the margin-left: auto; style I used caused issues and made it so that the list min
+size would be around 260 px. I fixed this by making sure that instead of using margin-left auto
+to align things on the main axis of the flexbox that I would make sure everything i wanted right
+to be in a container so i can use justify contet space between to move it all right. Also making 
+sure that container had enough space for all the items was important as well. Fixing this bug also
+made me realize that the minimum screen width I should be keeping an eye out for is 320 px
+Just in case 320 px wasnt enough for the conten still I made it so that you could scroll horizontally
+in the list. Now that ive added a place where the user can update or delete I will add those
+functions in.
+
+Cool websites i found that were useful: caniuse.com
+typescale.com
+
+
+
