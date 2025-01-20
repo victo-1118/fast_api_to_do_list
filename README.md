@@ -85,7 +85,11 @@ Just in case 320 px wasnt enough for the conten still I made it so that you coul
 in the list. Now that ive added a place where the user can update or delete I will add those
 functions in.
 
-Cool websites i found that were useful: caniuse.com
+1/19/2025
+Finished adding edit and delete function for the items just need to finish for the lists. Also cleaned up my code for eventlisteners using switch cases. By using data-action in my html it made this possible.
+
+Cool websites i found that were useful: 
+caniuse.com
 typescale.com
 
 

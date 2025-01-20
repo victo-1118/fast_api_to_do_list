@@ -33,14 +33,14 @@ async function loadLists() {
         allListsData.forEach(list => {
             console.log(list)
             const listHtml = `
-            <li class="list" data-id="${list.id}" data-name="${list.name}">
+            <li class="list" data-action = "display-items" data-id="${list.id}" data-name="${list.name}">
                 <p class="list-name">${list.name}</p>
-                <p class="left-caret">&#8249;</p>
+                <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
                 
                 <div class="button-wrapper" style="display: none;">
-                    <p class="right-caret">&#8250;</p>
-                    <p class="edit-button">&#9998;</p>
-                    <p class="delete-button">&#128465;</p>
+                    <p class="right-caret" data-action="toggle-right-caret">&#8250;</p>
+                    <p class="edit-button" data-action="edit-list">&#9998;</p>
+                    <p class="delete-button" data-action="delete-list">&#128465;</p>
                 </div>
             </li>
             `
@@ -143,98 +143,250 @@ function displayItemsPage (listId, listName) {
         touchStarted = false;
     })
     
-    itemsContainer.addEventListener('click', function (event) {
+    itemsContainer.addEventListener("click", async function (event) {
         console.log(event);
         console.log("Was the container clicked for items?");
-        const leftCaret = event.target.closest(".left-caret");
-        if (leftCaret) {
-            const parentItem = leftCaret.closest(".item"); // Find the parent .list container
-            const buttonWrapper = parentItem.querySelector(".button-wrapper");
 
-            // Show the buttons and replace the caret
-            buttonWrapper.style.display = "flex"; // Show edit and delete buttons
-            leftCaret.style.display = "none"; // Hide the left caret
-            return;
-        }
+        // Get the clicked element's action
+        const actionElement = event.target.closest("[data-action]");
+        if (!actionElement) return; // Exit if no actionable element was clicked
+       
+        const action = actionElement.dataset.action;
+        const parentItem = actionElement.closest(".item");
+        const listName = itemsContainer.previousElementSibling.innerHTML;
+        const itemId = parentItem?.dataset.id;
+        const text = parentItem?.dataset.text;
+        const itemIsDone = parentItem?.dataset.is_done;
+        const buttonWrapper = parentItem?.querySelector(".button-wrapper");
+        const leftCaret = parentItem?.querySelector(".left-caret");
+        const rightCaret = parentItem?.querySelector(".right-caret");
+    
+        switch (action) {
+            case "toggle-left-caret":
+                // Show buttons and toggle carets
+                buttonWrapper.style.display = "flex";
+                leftCaret.style.display = "none";
+                break;
+    
+            case "toggle-right-caret":
+                // Hide buttons and toggle carets
+                buttonWrapper.style.display = "none";
+                leftCaret.style.display = "block";
+                break;
+    
+            case "edit-item":
+                console.log(`Edit action for item ID: ${itemId}`);
+                console.log(`checking the list name: ${listName}`);
+                await editItem(itemId, listName); // Call your async edit function
+                const data = await readItem(itemId, listName);
+                console.log(data);
+                parentItem.dataset.text = data.text;
+                parentItem.dataset.is_done = data.is_done;
+                parentItem.querySelector(".data-text-display").textContent = data.text;
 
-        // Handle the right caret click
-        const rightCaret = event.target.closest(".right-caret");
-        if (rightCaret) {
-            const parentItem = rightCaret.closest(".item"); // Find the parent .list container
-            const buttonWrapper = parentItem.querySelector(".button-wrapper");
-
-            // Hide the buttons and replace the caret
-            buttonWrapper.style.display = "none"; // Hide edit and delete buttons
-            parentItem.querySelector(".left-caret").style.display = "block"; // Show the left caret
-            return;
-        }
-        const listItem = event.target.closest(".item");
-        if (listItem) {
-            const existingDescriptions = listItem.nextElementSibling;
-            console.log(existingDescriptions)    
-            // Check if the next sibling is the description paragraph
-            if (existingDescriptions && existingDescriptions.classList.contains("item-descriptions-container")) {                    // Remove the existing description
-                existingDescriptions.remove();
-            } else {
-                // Add a new description paragraph
-                const listItemDescription = listItem.dataset.is_done;
-                const trueOrFalseHTML = `<p>&#10060;</p>`
-                if (listItemDescription === "true") {
-                    trueOrFalseHTML = `<p>>&#9989;</p>`
-                }
-                const itemDescriptionHTML = `
-                <div class="item-descriptions-container">
-                    <p id="item-description">${trueOrFalseHTML}</p>
-
-                </div>`;
-                listItem.insertAdjacentHTML('afterend', itemDescriptionHTML);
-            }
+                break;
+    
+            case "delete-item":
+                console.log(`Delete action for item ID: ${itemId}`);
+                await deleteItem(itemId, listName); // Call your async delete function
+                parentItem.remove();
+                break;
+    
+            case "display-item-description":
+                console.log(`Displaying description for item ID: ${itemId}`);
+                toggleItemDescription(parentItem, itemIsDone);
+                break;
+    
+            default:
+                console.log(`Unhandled action: ${action}`);
+                break;
         }
     });
-    
 }
+/**
+ * Toggles the item description below a specific item.
+ * @param {Element} parentItem - The clicked item element.
+ * @param {string} isDone - Indicates whether the item is done ("true" or "false").
+ */
+function toggleItemDescription(parentItem, isDone) {
+    const existingDescriptions = parentItem.nextElementSibling;
+
+    // Check if the description already exists
+    if (existingDescriptions && existingDescriptions.classList.contains("item-descriptions-container")) {
+        existingDescriptions.remove(); // Remove the existing description
+    } else {
+        // Add a new description paragraph
+        const trueOrFalseHTML =
+            isDone === "true" ? `<p>&#9989;</p>` : `<p>&#10060;</p>`; // Checkmark or crossmark
+
+        const itemDescriptionHTML = `
+            <div class="item-descriptions-container">
+                <p id="item-description">${trueOrFalseHTML}</p>
+            </div>
+        `;
+        parentItem.insertAdjacentHTML("afterend", itemDescriptionHTML);
+    }
+}
+async function deleteItem(itemId, listName) {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/items/${listName}/${itemId}/`, { method: "DELETE" });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Item deleted successfully");
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+/**
+ * Async function to update a list.
+ * @param {string} listName - The current name of the list.
+ * @param {string} newName - The new name for the list.
+ */
+async function editList(listName) {
+    try {
+        const newName = prompt("Enter the new name for the list:", listName);
+        if (!newName) {
+            console.error("New name is required.");
+            return;
+        }
+        const url = `http://127.0.0.1:8000/lists/?${listName}`;
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            body: JSON.stringify({ new_name: newName }),
+        });
+
+        // Log the response status for debugging
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+            throw new Error(`Failed to update list with name: ${listName}. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`Successfully updated list with name: ${listName}`, data);
+    } catch (error) {
+        console.error("Error updating list:", error);
+    }
+}
+/**
+ * Example async edit function.
+ * @param {string} itemId - The ID of the item to edit.
+ * @param {string} itemIsDone - The current status of the item ("true" or "false").
+ * @param {string} listName - The name of the list associated with the item.
+ * @param {string} text - The new text for the item.
+ */
+async function editItem(itemId, listName) {
+    try {
+        const text = prompt("Enter the new text for the item (leave blank to keep unchanged):");
+        let itemIsDone = prompt("Enter the new status for the item (true, false, or leave blank to keep unchanged):");
+        itemIsDone = itemIsDone.toLowerCase();
+        // Validate `itemIsDone` input
+        const isDone = itemIsDone === "true" ? true : itemIsDone === "false" ? false : undefined;
+
+        // Dynamically construct query parameters
+        const queryParams = new URLSearchParams();
+        if (text !== null && text !== "") {
+            queryParams.append("text", text);
+        }
+        if (isDone !== undefined) {
+            queryParams.append("is_done", isDone);
+        }
+        console.log("here is what were changing")
+        console.log(text);
+        console.log(isDone);
+        // Log the constructed URL for debugging
+        const url = `http://127.0.0.1:8000/items/${listName}/${itemId}/?${queryParams}`;
+        console.log("Constructed URL:", url);
+
+        // Send the PUT request
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json",
+            },
+        });
+
+        // Log the response status for debugging
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+            throw new Error(`Failed to edit item with ID: ${itemId}. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`Successfully edited item with ID: ${itemId}`, data);
+    } catch (error) {
+        console.error("Error editing item:", error);
+    }
+}
+
 
 hamburger.addEventListener("click", displaySidebar)    
 
 backButton.addEventListener("click", displayListsPage)
 
-listsContainer.addEventListener('click', function (event) {
-    console.log("Was the container clicked");
+listsContainer.addEventListener('click', async function (event) {
+    console.log("Was the container clicked?");
 
-    // Handle the left caret click
-    const leftCaret = event.target.closest(".left-caret");
-    if (leftCaret) {
-        const parentList = leftCaret.closest(".list"); // Find the parent .list container
-        const buttonWrapper = parentList.querySelector(".button-wrapper");
+    // Get the clicked element's action
+    const actionElement = event.target.closest("[data-action]");
+    if (!actionElement) return; // Exit if no actionable element was clicked
 
-        // Show the buttons and replace the caret
-        buttonWrapper.style.display = "flex"; // Show edit and delete buttons
-        leftCaret.style.display = "none"; // Hide the left caret
-        return;
-    }
+    const action = actionElement.dataset.action;
+    const parentList = actionElement.closest(".list");
+    const listId = parentList?.dataset.id;
+    const listName = parentList?.dataset.name;
+    console.log(listName);
+    const buttonWrapper = parentList?.querySelector(".button-wrapper");
+    const leftCaret = parentList?.querySelector(".left-caret");
+    const rightCaret = parentList?.querySelector(".right-caret");
 
-    // Handle the right caret click
-    const rightCaret = event.target.closest(".right-caret");
-    if (rightCaret) {
-        const parentList = rightCaret.closest(".list"); // Find the parent .list container
-        const buttonWrapper = parentList.querySelector(".button-wrapper");
+    switch (action) {
+        case "toggle-left-caret":
+            buttonWrapper.style.display = "flex";
+            leftCaret.style.display = "none";
+            break;
 
-        // Hide the buttons and replace the caret
-        buttonWrapper.style.display = "none"; // Hide edit and delete buttons
-        parentList.querySelector(".left-caret").style.display = "block"; // Show the left caret
-        return;
-    }
+        case "toggle-right-caret":
+            console.log(`Toggling right-caret for list ID: ${listId}`);
+            buttonWrapper.style.display = "none";
+            leftCaret.style.display = "block";
+            break;
 
-    // Handle clicking on a list
-    const listItem = event.target.closest(".list");
-    if (listItem) {
-        const listId = listItem.dataset.id; // Access data-id
-        const listName = listItem.dataset.name; // Access data-name
-        console.log(`Clicked list: ${listName} (ID: ${listId})`);
-        displayItemsPage(listId, listName); // Your logic for navigating to the items page
+        case "edit-list":
+            console.log(`Edit action for list ID: ${listId}`);
+            await editList(listId, listName);
+            const data = await readList(listName);
+            parentList.dataset.name = data.name;
+            break;
+
+        case "delete-list":
+            console.log(`Delete action for list ID: ${listId}`);
+            await deleteList(listId);
+            break;
+
+        case "display-items":
+            console.log(`Displaying items for list: ${listName} (ID: ${listId})`);
+            displayItemsPage(listId, listName); // Your logic to show the items page
+            break;
+
+        default:
+            console.log(`Unhandled action: ${action}`);
+            break;
     }
 });
 
+async function editList(listId) {
+    console.log(`Editing list with ID: ${listId}`);
+}
+async function deleteList(listId) {
+    console.log(`Deleting list with ID: ${listId}`);
+}
 // Async function to make the POST request
 async function createList(listName) {
     try {
@@ -262,8 +414,15 @@ async function createList(listName) {
 
         // Insert the new list into the DOM
         const listHtml = `
-            <li class="list" data-id="${data.id}" data-name="${data.name}">
+            <li class="list" data-action = "display-items" data-id="${data.id}" data-name="${data.name}">
                 <p class="list-name">${data.name}</p>
+                <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                
+                <div class="button-wrapper" style="display: none;">
+                    <p class="right-caret data-action="toggle-right-caret">&#8250;</p>
+                    <p class="edit-button" data-action="edit-list">&#9998;</p>
+                    <p class="delete-button" data-action="delete-list">&#128465;</p>
+                </div>
             </li>
         `;
         console.log(listHtml);
@@ -286,17 +445,16 @@ async function readItems(listName) {
             console.log("No data found")
             return;
         }
-
         data.forEach(item => {
             const itemHTML = `
-                <li class = "item" data-id="${item.id}" data-is_done= "${item.is_done}">
-                    <p>${item.text}</p>
-                    <p class="left-caret">&#8249;</p>
+                <li class = "item" data-text = "${item.text}" data-action = "display-item-description" data-id="${item.id}" data-is_done= "${item.is_done}">
+                    <p class="data-text-display">${item.text}</p>
+                    <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
                 
                     <div class="button-wrapper" style="display: none;">
-                        <p class="right-caret">&#8250;</p>
-                        <p class="edit-button">&#9998;</p>
-                        <p class="delete-button">&#128465;</p>
+                        <p class="right-caret" data-action="toggle-right-caret">&#8250;</p>
+                        <p class="edit-button" data-action="edit-item">&#9998;</p>
+                        <p class="delete-button" data-action="delete-item">&#128465;</p>
                     </div>
                     
                 </li>
@@ -306,6 +464,18 @@ async function readItems(listName) {
     }
     catch (error) {
         console.error('There was a problem with the fetch operation:', error);
+    }
+}
+async function readItem(itemId, listName) {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/items/${listName}/${itemId}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        
     }
 }
 async function createItem(itemText, listName) {
@@ -325,7 +495,7 @@ async function createItem(itemText, listName) {
         const data = await response.json();
         console.log("Item created successfully:", data);
         const itemHtml = `
-        <li class = "item" data-id="${data.id}" data-is_done= "${data.is_done}">${data.text}</li>
+        <li class = "item" data-text = "${data.text}" data-action = "display-item-description" data-id="${data.id}" data-is_done= "${data.is_done}"><p class="data-text-display">${data.text}</p></li>
         `;
         itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     } catch (error) {

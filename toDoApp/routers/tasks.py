@@ -37,6 +37,3 @@ async def update_item(name: str, item_id: int, text:Optional[str]=None, is_done:
 @router.delete("/items/{name}/{item_id}")
 async def delete_item(name: str, item_id: int):
     return await crud.delete_item(name, item_id)
-
-
-

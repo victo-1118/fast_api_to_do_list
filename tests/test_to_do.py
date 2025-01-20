@@ -129,6 +129,13 @@ class TestListsAPI:
         assert response.json()["text"] == "test2"
         assert response.json()["is_done"] is True
 
+        response = await client.put(f"/items/Groceries/{item_id}?is_done=false")
+        if response.status_code != 200:
+            print(response.json())
+        assert response.status_code == 200
+        assert response.json()["text"] == "test2"
+        assert response.json()["is_done"] is False
+
     @pytest.mark.anyio
     async def test_delete_item(self, client: AsyncClient) -> None:
         print("Running test_delete_item")
