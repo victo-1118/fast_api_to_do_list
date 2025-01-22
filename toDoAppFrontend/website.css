@@ -58,6 +58,10 @@ p {
     justify-content: space-between;
     overflow-x: auto;
 }
+.completed-item .data-text-display {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
 .item-descriptions-container{
     display: flex;
     flex-direction: row;

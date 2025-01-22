@@ -79,18 +79,14 @@ function displaySidebar() {
 
     if (sidebarHidden) {
         sidebar.style.left = `0`;
-        console.log(`Sidebar width: ${sidebarWidth}`);
-        console.log(`Sidebar left: ${sidebar.style.left}`);
-        console.log(`Sidebar hidden: ${sidebarHidden}`);
+
         
         listsPage.style.marginLeft = `${sidebarWidth}`;
         itemsPage.style.marginLeft = `${sidebarWidth}`;
         listsPage.style.width = `calc(100% - ${sidebarWidth})`;
         itemsPage.style.width = `calc(100% - ${sidebarWidth})`;
     } else {
-        console.log(`Sidebar width: ${sidebarWidth}`);
-        console.log(`Sidebar left: ${sidebar.style.left}`);
-        console.log(`Sidebar hidden: ${sidebarHidden}`);
+
         
         sidebar.style.left = `-${sidebarWidth}`;
         listsPage.style.marginLeft = `0px`;
@@ -118,7 +114,6 @@ function displayListsPage () {
 function displayItemsPage (listId, listName) {
     createButton.querySelector("p").textContent = "Create Item"
     backButton.style.display = `block`
-    console.log(`Loading items for List ID: ${listId}, List Name: ${listName}`);
     listsPage.style.display = `none`;
     itemsPage.style.display = `block`;
 
@@ -138,16 +133,13 @@ function displayItemsPage (listId, listName) {
 
     readItems(listName);
     itemsContainer.addEventListener('touchstart', function(event) {
-        console.log(event);
         touchStarted = true;
         setTimeout(function() {
             if (touchStarted) {
                 event.stopPropagation();
-                console.log("Finger is down");
                 const touch = event.targetTouches[0];
                 const item = touch ? document.elementFromPoint(touch.clientX, touch.clientY) : event.target;
                 if (item){
-                    console.log(item);
                     item.style.backGroundColor = "lightblue";
                 }
             }
@@ -161,8 +153,6 @@ function displayItemsPage (listId, listName) {
     })
     
     itemsContainer.addEventListener("click", async function (event) {
-        console.log(event);
-        console.log("Was the container clicked for items?");
 
         // Get the clicked element's action
         const actionElement = event.target.closest("[data-action]");
@@ -192,19 +182,22 @@ function displayItemsPage (listId, listName) {
                 break;
     
             case "edit-item":
-                console.log(`Edit action for item ID: ${itemId}`);
-                console.log(`checking the list name: ${listName}`);
+
                 await editItem(itemId, listName); // Call your async edit function
                 const data = await readItem(itemId, listName);
-                console.log(data);
                 parentItem.dataset.text = data.text;
                 parentItem.dataset.is_done = data.is_done;
+                if (data.is_done) {
+                    parentItem.classList.add("completed-item");
+                }
+                else {
+                    parentItem.classList.remove("completed-item");
+                }
                 parentItem.querySelector(".data-text-display").textContent = data.text;
 
                 break;
     
             case "delete-item":
-                console.log(`Delete action for item ID: ${itemId}`);
                 let deleted = await deleteItem(itemId, listName); // Call your async delete function
                 if (deleted) {
                     parentItem.remove();
@@ -212,12 +205,10 @@ function displayItemsPage (listId, listName) {
                 break;
     
             case "display-item-description":
-                console.log(`Displaying description for item ID: ${itemId}`);
                 toggleItemDescription(parentItem, itemIsDone);
                 break;
     
             default:
-                console.log(`Unhandled action: ${action}`);
                 break;
         }
     });
@@ -265,7 +256,6 @@ async function deleteItem(itemId, listName) {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Item deleted successfully");
         return true;
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -283,7 +273,6 @@ async function editList(listName) {
             console.error("New name is required.");
             return;
         }
-        console.log(newName)
         const url = `http://127.0.0.1:8000/lists/${listName}/?new_name=${newName}`;
         const response = await fetch(url, {
             method: "PUT",
@@ -294,14 +283,12 @@ async function editList(listName) {
         });
 
         // Log the response status for debugging
-        console.log("Response status:", response.status);
 
         if (!response.ok) {
             throw new Error(`Failed to update list with name: ${listName}. Status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log(`Successfully updated list with name: ${listName}`, data);
     } catch (error) {
         console.error("Error updating list:", error);
     }
@@ -329,12 +316,9 @@ async function editItem(itemId, listName) {
         if (isDone !== undefined) {
             queryParams.append("is_done", isDone);
         }
-        console.log("here is what were changing")
-        console.log(text);
-        console.log(isDone);
+
         // Log the constructed URL for debugging
         const url = `http://127.0.0.1:8000/items/${listName}/${itemId}/?${queryParams}`;
-        console.log("Constructed URL:", url);
 
         // Send the PUT request
         const response = await fetch(url, {
@@ -345,14 +329,12 @@ async function editItem(itemId, listName) {
         });
 
         // Log the response status for debugging
-        console.log("Response status:", response.status);
 
         if (!response.ok) {
             throw new Error(`Failed to edit item with ID: ${itemId}. Status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log(`Successfully edited item with ID: ${itemId}`, data);
+
     } catch (error) {
         console.error("Error editing item:", error);
     }
@@ -361,21 +343,16 @@ async function editItem(itemId, listName) {
 
 hamburger.addEventListener("click", displaySidebar)    
 searchButton.addEventListener("click", function(event){
-    console.log("Search button clicked");
     if (listsPage.style.display === "block"){
-        console.log("searching for list")
         scrollToSearchedList(prompt("Enter the list name you want to search for:"));
     }
     else if (itemsPage.style.display === "block"){
-        console.log("searching for item")
         scrollToSearchedItem(prompt("Enter the item text you want to search for:"));
     }
-    console.log("something wrong")
 })
 backButton.addEventListener("click", displayListsPage)
 
 listsContainer.addEventListener('click', async function (event) {
-    console.log("Was the container clicked?");
 
     // Get the clicked element's action
     const actionElement = event.target.closest("[data-action]");
@@ -385,10 +362,8 @@ listsContainer.addEventListener('click', async function (event) {
     const parentList = actionElement.closest(".list");
     const listId = parentList?.dataset.id;
     listName = parentList?.dataset.name;
-    console.log(listName);
     const buttonWrapper = parentList?.querySelector(".button-wrapper");
     const leftCaret = parentList?.querySelector(".left-caret");
-    const rightCaret = parentList?.querySelector(".right-caret");
 
     switch (action) {
         case "toggle-left-caret":
@@ -397,13 +372,11 @@ listsContainer.addEventListener('click', async function (event) {
             break;
 
         case "toggle-right-caret":
-            console.log(`Toggling right-caret for list ID: ${listId}`);
             buttonWrapper.style.display = "none";
             leftCaret.style.display = "block";
             break;
 
         case "edit-list":
-            console.log(`Edit action for list ID: ${listId}`);
             await editList(listName);
             const data = await readList(listId);
             parentList.dataset.name = data.name;
@@ -411,7 +384,6 @@ listsContainer.addEventListener('click', async function (event) {
             break;
 
         case "delete-list":
-            console.log(`Delete action for list ID: ${listId}`);
             let deleted = await deleteList(listId);
             if (deleted){
                 parentList.remove();
@@ -420,7 +392,6 @@ listsContainer.addEventListener('click', async function (event) {
             break;
 
         case "display-items":
-            console.log(`Displaying items for list: ${listName} (ID: ${listId})`);
             displayItemsPage(listId, listName); // Your logic to show the items page
             break;
 
@@ -436,7 +407,6 @@ async function readList(listId) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("List data:", data);
         return data;
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -475,7 +445,6 @@ async function deleteList(listId) {
 async function createList(listName) {
     try {
         
-        console.log("before the fetch request");
 
         const response = await fetch('http://127.0.0.1:8000/lists/', {
             method: 'POST', // Specify the HTTP method
@@ -486,14 +455,11 @@ async function createList(listName) {
             body: JSON.stringify({ name: listName }), // Send the list name as JSON
         });
 
-        console.log(response);
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("response ok");
         const data = await response.json();
-        console.log("List created successfully:", data);
 
 
         // Insert the new list into the DOM
@@ -509,10 +475,8 @@ async function createList(listName) {
                 </div>
             </li>
         `;
-        console.log(listHtml);
 
         listsContainer.insertAdjacentHTML('beforeend', listHtml);
-        console.log("List inserted into DOM");
 
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -529,9 +493,12 @@ async function readItems(listName) {
             console.log("No data found")
             return;
         }
+        let itemFalseHTML = '';
+        let itemTrueHTML = '';
         data.forEach(item => {
-            const itemHTML = `
-                <li class = "item" data-text = "${item.text}" data-action = "display-item-description" data-id="${item.id}" data-is_done= "${item.is_done}">
+            if (!item.is_done){
+                itemFalseHTML = itemFalseHTML + `
+                <li class = "item " data-text = "${item.text}" data-action = "display-item-description" data-id="${item.id}" data-is_done= "${item.is_done}">
                     <p class="data-text-display">${item.text}</p>
                     <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
                 
@@ -542,9 +509,33 @@ async function readItems(listName) {
                     </div>
                     
                 </li>
+
             `;
-            itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+                
+                return;
+            }
+            else{
+            
+                itemTrueHTML = itemTrueHTML + `
+                <li class = "item completed-item" data-text = "${item.text}" data-action = "display-item-description" data-id="${item.id}" data-is_done= "${item.is_done}">
+                    <p class="data-text-display">${item.text}</p>
+                    <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                
+                    <div class="button-wrapper" style="display: none;">
+                        <p class="right-caret" data-action="toggle-right-caret">&#8250;</p>
+                        <p class="edit-button" data-action="edit-item">&#9998;</p>
+                        <p class="delete-button" data-action="delete-item">&#128465;</p>
+                    </div>
+                    
+                </li>
+
+                `;
+                
+            }
+
         })
+        itemsContainer.insertAdjacentHTML('beforeend', itemFalseHTML);
+        itemsContainer.insertAdjacentHTML('beforeend', itemTrueHTML);
     }
     catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -572,12 +563,10 @@ async function createItem(itemText, listName) {
             },
             body: JSON.stringify({ text: itemText, is_done: false}), // Send the list name as JSON
         });
-        console.log(response);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Item created successfully:", data);
         const itemHtml = `
         <li class = "item" data-text = "${data.text}" data-action = "display-item-description" data-id="${data.id}" data-is_done= "${data.is_done}">
             <p class="data-text-display">${data.text}</p>
@@ -600,15 +589,12 @@ async function createItem(itemText, listName) {
 // Event listener for the create button
 createButton.addEventListener("click", function (event) {
     event.preventDefault(); // Prevent default behavior
-    console.log("Create button clicked");
     const listsPageStyles = getComputedStyle(listsPage);
     const listsPageDisplayability = listsPageStyles.getPropertyValue("display");
     if (listsPageDisplayability === "block") {
         
     
         listName = prompt("Enter List Name:");
-        console.log(listName);
-
 
         // Check if the user entered a name
         if (!listName) {
@@ -617,19 +603,16 @@ createButton.addEventListener("click", function (event) {
         }
 
         // Call the async function with the list name
-        console.log("Calling async function");
         createList(listName);
     }
     else {
         const itemText = prompt("Enter Item Text:");
-        console.log(itemText);
 
         // Check if the user entered a name
         if (!itemText) {
             console.error("Item name is required.");
             return;
         }
-        console.log(listName);
         // Call the async function with the list name    
         createItem(itemText, listName);
     }
