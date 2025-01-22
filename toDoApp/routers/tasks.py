@@ -8,9 +8,12 @@ async def create_list(list_in: schemas.ListIn_Pydantic):
         return await crud.create_list(list_in)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-@router.get("/lists/{name}", response_model=schemas.List_Pydantic)
-async def read_list(name: str):
-    return await crud.read_list(name)
+@router.get("/lists/{list_id}", response_model=schemas.List_Pydantic)
+async def read_list(list_id: int):
+    list_obj = await crud.read_list(list_id)
+    if not list_obj:
+        raise HTTPException(status_code=404, detail=f"List with id = {list_id} not found")
+    return list_obj
 @router.get("/lists/", response_model=List[schemas.List_Pydantic])
 async def read_all_lists():
     return await crud.read_all_lists()
@@ -18,9 +21,9 @@ async def read_all_lists():
 @router.put("/lists/{name}", response_model=schemas.List_Pydantic)
 async def update_list(name: str, new_name: str):
     return await crud.update_list(name, new_name)
-@router.delete("/lists/{name}")
-async def delete_list(name: str):
-    return await crud.delete_list(name)
+@router.delete("/lists/{id}")
+async def delete_list(id: int):
+    return await crud.delete_list(id)
 @router.post("/items/{name}", response_model=schemas.Item_Pydantic)
 async def create_item(item_in: schemas.ItemIn_Pydantic, name:str):
     return await crud.create_item(item_in, name)

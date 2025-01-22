@@ -54,8 +54,9 @@ class TestListsAPI:
         print("Running test_read_list")
         response = await client.post("/lists/", json={"name": "Groceries"})
         assert response.status_code == 200
-
-        response = await client.get("/lists/Groceries")
+        id = response.json()["id"]
+        response = await client.get(f"/lists/{id}")
+        print(response.json())
         assert response.status_code == 200
         assert response.json()["name"] == "Groceries"
 
@@ -78,11 +79,12 @@ class TestListsAPI:
         response = await client.post("/lists/", json={"name": "Groceries"})
         assert response.status_code == 200
         assert response.json()["name"] == "Groceries"
-
-        response = await client.delete("/lists/Groceries")
+        id = response.json()["id"]
+        response = await client.delete(f"/lists/{id}")
         assert response.status_code == 200
 
-        response = await client.get("/lists/Groceries")
+        response = await client.get(f"/lists/{id}")
+        print(response.json())
         assert response.status_code == 404
 
     @pytest.mark.anyio

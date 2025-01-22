@@ -23,14 +23,18 @@ Created the dummy items now all thats left is to make sure that the dummy items 
 and whether are done or not. Thinking maybe ill show the descriptions after clicking on the item if I
 decide to add a option for more in detail descriptions.
 At least for mobile. maybe for on computer I show it to the side of the name of the task item to do
-so that way I can use that extra space. In fact I could probably do something similar with the list display as I can show how many items out of total items are complete. Same thing can be done for mobile next to item name to show if its complete or not instead of showing it once clicking on the item.
+so that way I can use that extra space. In fact I could probably do something similar with the list display as I can show 
+how many items out of total items are complete. Same thing can be done for mobile next to item name to show if its complete 
+or not instead of showing it once clicking on the item.
 
 I should probably add some more comments to my backend and frontend
 
 thinking of just adding description currently just basic stuff and then I can add more design or features
 1/11/2025 
-just added the items descriptions after clicking them. think im going to focus on mobile first before adding computer query media stuff etc.
-I think im almost ready to make the fetch api calls but first i got to fix the sidebar (back to list button dont make sense if your already at the list page and other similar issues)
+just added the items descriptions after clicking them. think im going to focus on mobile first before adding computer query
+ media stuff etc.
+I think im almost ready to make the fetch api calls but first i got to fix the sidebar (back to list button dont make sense 
+if your already at the list page and other similar issues)
 Easier fix than i thought
 Time for fetch api stuff. Ill probably start on the sidebar buttons functions then move to clicking
 the lists
@@ -86,7 +90,21 @@ in the list. Now that ive added a place where the user can update or delete I wi
 functions in.
 
 1/19/2025
-Finished adding edit and delete function for the items just need to finish for the lists. Also cleaned up my code for eventlisteners using switch cases. By using data-action in my html it made this possible.
+Finished adding edit and delete function for the items just need to finish for the lists. Also cleaned up my code for 
+eventlisteners using switch cases. By using data-action in my html it made this possible. Also added a test to check whether 
+you could change just one aspect of my items model.
+
+
+1/22/2025 
+added the rest of the edit and delete functions along with media queries. Changed some of my crud functions to take an id 
+instead of name of list and also changed how some routes worked becuase of that
+I added a variable to determine the sidebar width to make it easier to change for media queries
+Changed order where I linked style sheets since w3 style sheet was being annoying.
+Fixed a bug where hamburger symbol wouldnt correctly display sidebar after more than 2 presses(it was an issue with type
+ value although they both looked the same so they became ints to be fix them).
+ Also read list and read item became useful since it was important to correctly display a specific item. Good thing i kept these in.
+ Was going to finish this project here but I said before in the earlier entries I would add it so that you would see how 
+ many are done.
 
 Cool websites i found that were useful: 
 caniuse.com

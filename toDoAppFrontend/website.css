@@ -10,6 +10,7 @@
 }
 :root {
     --menu-color:rgb(255, 238, 206);
+    --sidebar-width: 130px
 }
 html {
     scrollbar-width: none;
@@ -92,8 +93,8 @@ p {
     position: fixed;
     top: 0;
     background-color: var(--menu-color);
-    left: -130px; /* Initially hidden */
-    width: 130px;
+    left: calc(-1 * var(--sidebar-width)); /* Initially hidden */
+    width: var(--sidebar-width);
     height: 100vh; /* Sidebar height adjusted */
 
     transition: left 0.7s ease; /* Smooth transition */
@@ -234,5 +235,66 @@ background: currentColor;
 }
 
 
+@media (min-width: 481px){
+    p{
+        font-size: 1.3rem;
+    }
+    h2{
+        font-size:2rem;
+    }
+    .list, .item, .title-list, .title-items{
+        height: 65px;
+    }
+    .left-caret{
+        font-size: 2.5rem;
+    }
+    
+    .edit-button, .delete-button, .right-caret {
+        font-size: 2rem;
+    }
+    .right-caret{
+        font-size: 2.5rem;
+    }
+    .button-wrapper{
+        width: 5rem;
+    }
+    :root{
+        --sidebar-width: 130px;
+    }
+}
+@media (min-width: 769px){
+    :root {
+        --sidebar-width: 160px;
+    }
+    h2{
+        font-size: 2.25rem;
+    }
+}
+@media (min-width: 992px){
+    :root{
+        --sidebar-width: 180px;
+    }
+    p{
+        font-size: 1.6rem;
+    }
+    h2{
+        font-size: 2.5rem;
+    }
+    .edit-button, .delete-button, .right-caret {
+        font-size: 3rem;
+    }
+    .right-caret{
+        font-size: 3.5rem;
+    }
+    .left-caret{
+        font-size: 3.5rem;
+    }
+    .button-wrapper{
+        width: 7rem;
+    }
+    .list, .item, .title-list, .title-items {
+        height: 80px;
+    }
 
+}
 

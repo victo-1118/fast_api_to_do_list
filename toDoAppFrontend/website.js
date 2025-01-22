@@ -55,43 +55,60 @@ async function loadLists() {
 }
 loadLists();
 const listsPage = document.getElementById('lists-page');
+listsPage.style.display = `block`;
 const itemsPage = document.getElementById("items-page")
-
+itemsPage.style.display = `none`;
 const listsContainer = document.querySelector(".lists")
 let itemsContainer = null
 let listName = null;
 const createButton = document.querySelector(".sidebar-item:nth-child(1)");
+const searchButton = document.querySelector(".sidebar-item:nth-child(2)");
 const backButton = document.getElementById('back-to-lists');
 const hamburger = document.getElementById("hamburger");
 const sidebar = document.getElementById("sidebar");
 
 
-function displaySidebar () {
-    
-    if (sidebar.style.left === "-130px" || sidebar.style.left === ""){
-        sidebar.style.left = `0`;
+function displaySidebar() {
+    const sidebarWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width').trim();
+    // Convert sidebarWidth to a number for comparison
+    const sidebarWidthValue = parseInt(sidebarWidth, 10);
+    const sidebarLeftValue = parseInt(sidebar.style.left, 10);
 
-            
-        listsPage.style.marginLeft = `130px`         
-        itemsPage.style.marginLeft = `130px`
-        listsPage.style.width = `calc(100% - 130px)`
-        itemsPage.style.width = `calc(100% - 130px)`
-    }
-    else {
-        console.log(sidebar.style.left)
-        sidebar.style.left = `-130px`;
+    // Determine if the sidebar is hidden
+    const sidebarHidden = isNaN(sidebarLeftValue) || sidebarLeftValue === -sidebarWidthValue;
+
+    if (sidebarHidden) {
+        sidebar.style.left = `0`;
+        console.log(`Sidebar width: ${sidebarWidth}`);
+        console.log(`Sidebar left: ${sidebar.style.left}`);
+        console.log(`Sidebar hidden: ${sidebarHidden}`);
         
-        listsPage.style.marginLeft = `0px`
-        itemsPage.style.marginLeft = `0px`
-        listsPage.style.width = `100%`
-        itemsPage.style.width = `100%`
+        listsPage.style.marginLeft = `${sidebarWidth}`;
+        itemsPage.style.marginLeft = `${sidebarWidth}`;
+        listsPage.style.width = `calc(100% - ${sidebarWidth})`;
+        itemsPage.style.width = `calc(100% - ${sidebarWidth})`;
+    } else {
+        console.log(`Sidebar width: ${sidebarWidth}`);
+        console.log(`Sidebar left: ${sidebar.style.left}`);
+        console.log(`Sidebar hidden: ${sidebarHidden}`);
+        
+        sidebar.style.left = `-${sidebarWidth}`;
+        listsPage.style.marginLeft = `0px`;
+        itemsPage.style.marginLeft = `0px`;
+        listsPage.style.width = `100%`;
+        itemsPage.style.width = `100%`;
     }
-    
 }
 
     
-
-
+function scrollToSearchedList (listName) {
+    const listElement = document.querySelector(`.list[data-name="${listName}"]`);
+    listElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function scrollToSearchedItem (itemName) {
+    const itemElement = document.querySelector(`.item[data-name="${itemName}"]`);
+    itemElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
 function displayListsPage () {
     itemsPage.style.display = `none`
     listsPage.style.display = `block`
@@ -188,8 +205,10 @@ function displayItemsPage (listId, listName) {
     
             case "delete-item":
                 console.log(`Delete action for item ID: ${itemId}`);
-                await deleteItem(itemId, listName); // Call your async delete function
-                parentItem.remove();
+                let deleted = await deleteItem(itemId, listName); // Call your async delete function
+                if (deleted) {
+                    parentItem.remove();
+                }
                 break;
     
             case "display-item-description":
@@ -229,11 +248,25 @@ function toggleItemDescription(parentItem, isDone) {
 }
 async function deleteItem(itemId, listName) {
     try {
+        let confirmDelete = prompt("Are you sure you want to delete this list? (enter confirm or cancel");
+  
+        while (true) {
+            if (!confirmDelete || confirmDelete === "null") {
+                continue;
+            }
+            else if (confirmDelete.toLowerCase() === "confirm"){
+                break;
+            }
+            else if (confirmDelete.toLowerCase() === "cancel"){
+                return false;
+            }
+        }
         const response = await fetch(`http://127.0.0.1:8000/items/${listName}/${itemId}/`, { method: "DELETE" });
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         console.log("Item deleted successfully");
+        return true;
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
     }
@@ -250,14 +283,14 @@ async function editList(listName) {
             console.error("New name is required.");
             return;
         }
-        const url = `http://127.0.0.1:8000/lists/?${listName}`;
+        console.log(newName)
+        const url = `http://127.0.0.1:8000/lists/${listName}/?new_name=${newName}`;
         const response = await fetch(url, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
-            body: JSON.stringify({ new_name: newName }),
         });
 
         // Log the response status for debugging
@@ -327,7 +360,18 @@ async function editItem(itemId, listName) {
 
 
 hamburger.addEventListener("click", displaySidebar)    
-
+searchButton.addEventListener("click", function(event){
+    console.log("Search button clicked");
+    if (listsPage.style.display === "block"){
+        console.log("searching for list")
+        scrollToSearchedList(prompt("Enter the list name you want to search for:"));
+    }
+    else if (itemsPage.style.display === "block"){
+        console.log("searching for item")
+        scrollToSearchedItem(prompt("Enter the item text you want to search for:"));
+    }
+    console.log("something wrong")
+})
 backButton.addEventListener("click", displayListsPage)
 
 listsContainer.addEventListener('click', async function (event) {
@@ -340,7 +384,7 @@ listsContainer.addEventListener('click', async function (event) {
     const action = actionElement.dataset.action;
     const parentList = actionElement.closest(".list");
     const listId = parentList?.dataset.id;
-    const listName = parentList?.dataset.name;
+    listName = parentList?.dataset.name;
     console.log(listName);
     const buttonWrapper = parentList?.querySelector(".button-wrapper");
     const leftCaret = parentList?.querySelector(".left-caret");
@@ -360,14 +404,19 @@ listsContainer.addEventListener('click', async function (event) {
 
         case "edit-list":
             console.log(`Edit action for list ID: ${listId}`);
-            await editList(listId, listName);
-            const data = await readList(listName);
+            await editList(listName);
+            const data = await readList(listId);
             parentList.dataset.name = data.name;
+            parentList.querySelector(".list-name").textContent = data.name;
             break;
 
         case "delete-list":
             console.log(`Delete action for list ID: ${listId}`);
-            await deleteList(listId);
+            let deleted = await deleteList(listId);
+            if (deleted){
+                parentList.remove();
+            }
+            
             break;
 
         case "display-items":
@@ -380,12 +429,47 @@ listsContainer.addEventListener('click', async function (event) {
             break;
     }
 });
-
-async function editList(listId) {
-    console.log(`Editing list with ID: ${listId}`);
+async function readList(listId) {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/lists/${listId}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("List data:", data);
+        return data;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
 }
 async function deleteList(listId) {
-    console.log(`Deleting list with ID: ${listId}`);
+    try {
+        let confirmDelete = null;
+  
+        while (true) {
+            confirmDelete = prompt("Are you sure you want to delete this list? (enter confirm or cancel");
+            if (!confirmDelete || confirmDelete === "null") {
+                
+                continue;
+            }
+            else if (confirmDelete.toLowerCase() === "confirm"){
+                break;
+            }
+            else if (confirmDelete.toLowerCase() === "cancel"){
+                return false;
+            }
+        }
+        
+        const response = await fetch(`http://127.0.0.1:8000/lists/${listId}/`,{
+            method: 'DELETE'});
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return true;
+    }
+    catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
 }
 // Async function to make the POST request
 async function createList(listName) {
@@ -495,7 +579,17 @@ async function createItem(itemText, listName) {
         const data = await response.json();
         console.log("Item created successfully:", data);
         const itemHtml = `
-        <li class = "item" data-text = "${data.text}" data-action = "display-item-description" data-id="${data.id}" data-is_done= "${data.is_done}"><p class="data-text-display">${data.text}</p></li>
+        <li class = "item" data-text = "${data.text}" data-action = "display-item-description" data-id="${data.id}" data-is_done= "${data.is_done}">
+            <p class="data-text-display">${data.text}</p>
+            <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                
+            <div class="button-wrapper" style="display: none;">
+                <p class="right-caret" data-action="toggle-right-caret">&#8250;</p>
+                <p class="edit-button" data-action="edit-item">&#9998;</p>
+                <p class="delete-button" data-action="delete-item">&#128465;</p>
+            </div>
+        </li>
+        
         `;
         itemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     } catch (error) {
@@ -527,7 +621,6 @@ createButton.addEventListener("click", function (event) {
         createList(listName);
     }
     else {
-        console.log(listsPage.style.display);
         const itemText = prompt("Enter Item Text:");
         console.log(itemText);
 
@@ -536,7 +629,7 @@ createButton.addEventListener("click", function (event) {
             console.error("Item name is required.");
             return;
         }
-
+        console.log(listName);
         // Call the async function with the list name    
         createItem(itemText, listName);
     }

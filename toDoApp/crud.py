@@ -40,11 +40,11 @@ async def create_item(item_in: ItemIn_Pydantic, name: str) -> Item_Pydantic:
     item_data["list_id"] = list_obj.id
     item_obj = await Item.create(**item_data)
     return await ItemIn_Pydantic.from_tortoise_orm(item_obj)
-async def read_list(name: str) -> List_Pydantic:
-    list_obj = await ListC.filter(name=name).first()
-
+async def read_list(list_id: int) -> List_Pydantic:
+    list_obj = await ListC.filter(id=list_id).first()
+    
     if not list_obj:
-        raise HTTPException(status_code=404, detail=f"{name} to be read not found")
+        raise HTTPException(status_code=404, detail=f"List with id = {list_id} to be read not found")
     return await List_Pydantic.from_tortoise_orm(list_obj)
 
 async def read_all_lists() :
@@ -96,12 +96,12 @@ async def update_item(name:str,id : int, text: str = None, is_done: bool = None)
         item_obj.is_done = is_done
     await item_obj.save()
     return await Item_Pydantic.from_tortoise_orm(item_obj)
-async def delete_list(name: str):
-    list_obj = await ListC.filter(name=name).first()
+async def delete_list(id: int):
+    list_obj = await ListC.filter(id=id).first()
     if not list_obj:
         raise HTTPException(status_code=404, detail="List to be deleted not found")
     await list_obj.delete()
-    return {"message" : f"{name} was succesfully deleted"}
+    return {"message" : f"List with id = {id} was succesfully deleted"}
 async def delete_item(name:str, id: int):
     list_obj = await ListC.filter(name=name).first().prefetch_related("items")
     if not list_obj:
