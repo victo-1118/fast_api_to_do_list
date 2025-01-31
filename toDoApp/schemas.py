@@ -11,6 +11,12 @@ if TYPE_CHECKING:
     
     class List_Pydantic():
         pass
+
+class ListWithProgress_Pydantic(List_Pydantic):
+    total_items: Optional[int] = 0
+    completed_items: Optional[int] = 0
+    class Config:
+        from_attributes = True
 class ListIn_Pydantic(ListIn_PydanticBase):
     items: Optional[ListType[ItemIn_Pydantic]] = None
     id: Optional[int] = None

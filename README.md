@@ -105,6 +105,9 @@ Fixed a bug where hamburger symbol wouldnt correctly display sidebar after more 
  Also read list and read item became useful since it was important to correctly display a specific item. Good thing i kept these in.
  Was going to finish this project here but I said before in the earlier entries I would add it so that you would see how 
  many are done.
+ Got rid of some console messages and made it so that its clear if an item is complete or not by changing
+ opacity and striking a line through the items name. Made it so that all completed items appear under
+ all not completed items
 
 Cool websites i found that were useful: 
 caniuse.com

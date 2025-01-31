@@ -1,8 +1,10 @@
-from .schemas import ListIn_Pydantic, ItemIn_Pydantic, List_Pydantic, Item_Pydantic
+from .schemas import ListWithProgress_Pydantic, ListIn_Pydantic, ItemIn_Pydantic, List_Pydantic, Item_Pydantic
 from .models import ListC, Item
+from tortoise.expressions import Q
 from typing import TYPE_CHECKING, List
 from fastapi import HTTPException
 from tortoise.exceptions import DoesNotExist
+from tortoise.functions import Count
 if TYPE_CHECKING:
     class ListIn_Pydantic():
         pass
@@ -12,11 +14,13 @@ if TYPE_CHECKING:
         pass
     class Item_Pydantic():
         pass
+    class ListWithProgress_Pydantic():
+        pass
 
 
 
 
-async def create_list(list_in: ListIn_Pydantic) -> List_Pydantic:
+async def create_list(list_in: ListIn_Pydantic) -> ListWithProgress_Pydantic:
     
     list_data = list_in.dict(exclude_unset=True)
     items_data = list_data.pop("items", [])
@@ -27,9 +31,13 @@ async def create_list(list_in: ListIn_Pydantic) -> List_Pydantic:
     # Create associated items if provided
     for item_data in items_data:
         await Item.create(**item_data, list=list_obj)
+    annotated_list = await ListC.filter(id=list_obj.id).annotate(
+        total_items=Count("items"),
+        completed_items=Count("items", _filter=Q(items__is_done=True)),
+    ).first()
    
     # Return the created list object with items
-    return await List_Pydantic.from_tortoise_orm(list_obj)
+    return await ListWithProgress_Pydantic.from_tortoise_orm(annotated_list)
 
 
 async def create_item(item_in: ItemIn_Pydantic, name: str) -> Item_Pydantic:
@@ -40,16 +48,33 @@ async def create_item(item_in: ItemIn_Pydantic, name: str) -> Item_Pydantic:
     item_data["list_id"] = list_obj.id
     item_obj = await Item.create(**item_data)
     return await ItemIn_Pydantic.from_tortoise_orm(item_obj)
-async def read_list(list_id: int) -> List_Pydantic:
-    list_obj = await ListC.filter(id=list_id).first()
+
+
+async def read_list(list_id: int) -> ListWithProgress_Pydantic:
+    # Annotate with total and completed items
+    list_obj = await ListC.filter(id=list_id).annotate(
+        total_items=Count("items"),
+        completed_items=Count("items", _filter=Q(items__is_done=True)),
+    ).first()
     
     if not list_obj:
-        raise HTTPException(status_code=404, detail=f"List with id = {list_id} to be read not found")
-    return await List_Pydantic.from_tortoise_orm(list_obj)
+        raise HTTPException(
+            status_code=404, 
+            detail=f"List with id = {list_id} not found"
+        )
+    
+    # Convert the annotated model to Pydantic
+    return await ListWithProgress_Pydantic.from_tortoise_orm(list_obj)
 
-async def read_all_lists() :
-    return await List_Pydantic.from_queryset(ListC.all())
-
+async def read_all_lists():
+    # Annotate the query set with total_items and completed_items
+    all_lists = ListC.annotate(
+        total_items=Count("items"),
+        completed_items=Count("items", _filter=Q(items__is_done=True)),
+    )
+    
+    # Convert the annotated query set to Pydantic models
+    return await ListWithProgress_Pydantic.from_queryset(all_lists)
 async def read_item(name: str, id: int) -> Item_Pydantic:
     try:
         list_obj = await ListC.filter(name=name).prefetch_related("items").first()

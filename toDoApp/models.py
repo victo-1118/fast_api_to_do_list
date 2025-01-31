@@ -4,6 +4,7 @@ from tortoise.models import Model
 class ListC(Model):
     id = fields.IntField(primary_key=True)
     name = fields.CharField(max_length=255, unique = True)
+    
     items = fields.ReverseRelation["Item"]
     def __str__(self):
         return self.name

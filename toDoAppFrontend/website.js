@@ -22,6 +22,22 @@ function loadSideBar (){
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 }
 loadSideBar();
+function updateProgress(progressBar, total, amountTrue){
+    debugger;
+    if (total === 0){
+        return;
+    }
+    let percentage = 100 - (amountTrue / total)*100;
+    console.log(percentage)
+    console.log(amountTrue)
+    const inner = progressBar.querySelector('.inner p')
+    progressBar.style.background = `conic-gradient(#ffffff ${percentage}%, rgba(0, 0, 0, 0.0) 0%),
+      radial-gradient(farthest-corner at 54px 4px, #f35 10%, #43e 100%)`
+    console.log(progressBar.style.background)
+    percentage = Math.round((amountTrue / total) * 100)
+    inner.innerHTML = `${percentage}%`
+    console.log(inner.innerHTML)
+}
 async function loadLists() {
     try {
         const response = await fetch("http://127.0.0.1:8000/lists/");
@@ -35,16 +51,26 @@ async function loadLists() {
             const listHtml = `
             <li class="list" data-action = "display-items" data-id="${list.id}" data-name="${list.name}">
                 <p class="list-name">${list.name}</p>
-                <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
-                
+                <div class="left-button-wrapper">
+                    <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                    <div class="circular-progress" data-id="${list.id}" style="display:${list.total_items === 0 ? 'none' : 'block'}">
+                        <div class="inner">
+                            <p><p>
+                        </div>
+                    </div>
+                </div>
                 <div class="button-wrapper" style="display: none;">
                     <p class="right-caret" data-action="toggle-right-caret">&#8250;</p>
                     <p class="edit-button" data-action="edit-list">&#9998;</p>
                     <p class="delete-button" data-action="delete-list">&#128465;</p>
+                    
+                    
                 </div>
             </li>
             `
             listsContainer.insertAdjacentHTML('beforeend', listHtml);
+            const progressBarToAdjust = listsContainer.querySelector(`.circular-progress[data-id="${list.id}"]`);
+            updateProgress(progressBarToAdjust,list.total_items, list.completed_items);
 
 
         })
@@ -364,16 +390,17 @@ listsContainer.addEventListener('click', async function (event) {
     listName = parentList?.dataset.name;
     const buttonWrapper = parentList?.querySelector(".button-wrapper");
     const leftCaret = parentList?.querySelector(".left-caret");
+    const leftButtonWrapper = parentList?.querySelector(".left-button-wrapper");
 
     switch (action) {
         case "toggle-left-caret":
             buttonWrapper.style.display = "flex";
-            leftCaret.style.display = "none";
+            leftButtonWrapper.style.display = "none";
             break;
 
         case "toggle-right-caret":
             buttonWrapper.style.display = "none";
-            leftCaret.style.display = "block";
+            leftButtonWrapper.style.display = "flex";
             break;
 
         case "edit-list":
@@ -381,6 +408,13 @@ listsContainer.addEventListener('click', async function (event) {
             const data = await readList(listId);
             parentList.dataset.name = data.name;
             parentList.querySelector(".list-name").textContent = data.name;
+            leftButtonWrapper = parentList.querySelector("left-button-wrapper")
+            leftButtonWrapper.insertAdjacentHTML('beforeend', `<div class="circular-progress" style="display:${data.total_items === 0 ? 'none' : 'block'}">
+                <div class="inner">
+                    <p><p>
+                </div>
+            </div>`)
+            updateProgress(data.total_items, data.completed_items);
             break;
 
         case "delete-list":
@@ -460,23 +494,32 @@ async function createList(listName) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-
+        console.log(data)
+        console.log(data.total_items === 0 ? 'none' : 'block')
 
         // Insert the new list into the DOM
         const listHtml = `
             <li class="list" data-action = "display-items" data-id="${data.id}" data-name="${data.name}">
                 <p class="list-name">${data.name}</p>
-                <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                <div class="left-button-wrapper">
+                    <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
+                    <div class="circular-progress" style="display:${data.total_items === 0 ? 'none' : 'block'}">
+                        <div class="inner">
+                            <p><p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="button-wrapper" style="display: none;">
                     <p class="right-caret data-action="toggle-right-caret">&#8250;</p>
                     <p class="edit-button" data-action="edit-list">&#9998;</p>
                     <p class="delete-button" data-action="delete-list">&#128465;</p>
+                    
                 </div>
             </li>
         `;
-
         listsContainer.insertAdjacentHTML('beforeend', listHtml);
+        updateProgress(data.total_items, data.completed_items);
 
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -500,6 +543,7 @@ async function readItems(listName) {
                 itemFalseHTML = itemFalseHTML + `
                 <li class = "item " data-text = "${item.text}" data-action = "display-item-description" data-id="${item.id}" data-is_done= "${item.is_done}">
                     <p class="data-text-display">${item.text}</p>
+
                     <p class="left-caret" data-action="toggle-left-caret">&#8249;</p>
                 
                     <div class="button-wrapper" style="display: none;">

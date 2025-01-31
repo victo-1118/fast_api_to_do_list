@@ -2,19 +2,19 @@ from fastapi import APIRouter, HTTPException
 from toDoApp import crud, models, schemas
 from typing import Optional, List
 router = APIRouter()
-@router.post("/lists/", response_model=schemas.List_Pydantic)
+@router.post("/lists/", response_model=schemas.ListWithProgress_Pydantic)
 async def create_list(list_in: schemas.ListIn_Pydantic):
     try:
         return await crud.create_list(list_in)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-@router.get("/lists/{list_id}", response_model=schemas.List_Pydantic)
+@router.get("/lists/{list_id}", response_model=schemas.ListWithProgress_Pydantic)
 async def read_list(list_id: int):
     list_obj = await crud.read_list(list_id)
     if not list_obj:
         raise HTTPException(status_code=404, detail=f"List with id = {list_id} not found")
     return list_obj
-@router.get("/lists/", response_model=List[schemas.List_Pydantic])
+@router.get("/lists/", response_model=List[schemas.ListWithProgress_Pydantic])
 async def read_all_lists():
     return await crud.read_all_lists()
 
