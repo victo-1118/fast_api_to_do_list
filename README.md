@@ -109,6 +109,13 @@ Fixed a bug where hamburger symbol wouldnt correctly display sidebar after more 
  opacity and striking a line through the items name. Made it so that all completed items appear under
  all not completed items
 
+ 1/31/2025
+ Finished adding changes to create a progress bar. It was difficult as I wanted to make the progress 
+ bar to have a gradient as its color and it was also circular. I had to change my schemas file
+ to account for the new data I would sending to calculat how much of a list was done
+ Overall I think this was a well done project since not only does it work the design is responsive
+ and the code in my opinion is pretty clean
+
 Cool websites i found that were useful: 
 caniuse.com
 typescale.com

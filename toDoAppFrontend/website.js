@@ -127,8 +127,10 @@ function scrollToSearchedList (listName) {
     const listElement = document.querySelector(`.list[data-name="${listName}"]`);
     listElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
-function scrollToSearchedItem (itemName) {
-    const itemElement = document.querySelector(`.item[data-name="${itemName}"]`);
+function scrollToSearchedItem (itemText) {
+
+    const itemElement = document.querySelector(`.item[data-text="${itemText}"]`);
+    console.log(itemElement)
     itemElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 function displayListsPage () {
