@@ -1,7 +1,14 @@
 First indpendec RESTful api. To Do List API. 
-Frontend is still in the works and its really basic right now and still not connected to backend
+Hey this is my to do my list complete with frontend and backend.
+If you want to run it pull the code and make sure you have the live server extension or something of the like
+to see the website. Just keep in mind that extensions like live server might check for updates in the files
+so it might cause some unneccessary refreshes. To fix this make sure to fix the settings so that it doesnt
+check for changes to the database and files related to it.
 
-important stuff to know for poetry usage.
+Here is a link so that you can see how its supposed to look like: https://www.awesomescreenshot.com/video/36123464?key=ce0ba1130e3c7c352766b0925f0c7ea2
+
+Once you have pulled the files you have to run the backend first. Poetry can help with that
+Below is important stuff to know for poetry usage.
 
 first: poetry install
 
@@ -12,6 +19,8 @@ How to run server: poetry run run-server
 to add libraries/dependencies you would have to do: poetry add [name of libary]
 
 to show what dependencies you have already added do: poetry show [dependency]
+
+All in all this was a cool project for me since it was the first time doing backend and frontend!
 
 Frontend Timeline:
 1/8/2025
@@ -48,7 +57,8 @@ Also added some Cors stuff and overall its not so bad as it does create a new li
 
 1/13/2025
 The issues was live server. what happend was that because live Server automatically looks for change in
- files in its directores to make sure those changes are shown in the website the page refreshed when the database was updated. Ive disabled liveserver from checking those database files.
+ files in its directores to make sure those changes are shown in the website the page refreshed when the database was updated.
+ Ive disabled liveserver from checking those database files.
 
 1/14/2025 
 Finished with the create item button. did have some issues but it wasnt major since it was just stupid/simple
@@ -73,7 +83,8 @@ Just finished the read items fetch request and works as expected. Found out that
  Was planning to make it so that you have to hold click or touch to see options on whether to update
   or delete. Changed my mind though since that would be kind of weird in computer and also it would
   mess up with the box sizes for the li tags. Now im going to make sure that instead there is a drag
-  left arrow to see options to update and delete for mobile. On computer/ non touch ill makes it so that if you hover over the item then you will see the option to delete or update. I think I will use the hold click or touch to drag elements
+  left arrow to see options to update and delete for mobile. On computer/ non touch ill makes it so
+  that if you hover over the item then you will see the option to delete or update. I think I will use the hold click or touch to drag elements
 
 1/18/2025
 I had an issue where under 391 pixels the lists container would not be seen completely. This was 
